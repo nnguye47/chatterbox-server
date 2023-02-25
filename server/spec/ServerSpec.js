@@ -13,19 +13,21 @@ describe('Node Server Request Listener Function', function() {
 
     expect(res._responseCode).to.equal(200);
     expect(res._ended).to.equal(true);
+
   });
 
-  it('Should send back parsable stringified JSON', function() {
+  it('Should send back parsable stringified JSON', function(done) {
     var req = new stubs.request('/classes/messages', 'GET');
     var res = new stubs.response();
 
     handler.requestHandler(req, res);
 
-    expect(JSON.parse.bind(this, res._data)).to.not.throw();
+    expect(JSON.parse.bind(this, res._data)).to.not.throw(done);
     expect(res._ended).to.equal(true);
+    done();
   });
 
-  it('Should send back an array', function() {
+  it('Should send back an array', function(done) {
     var req = new stubs.request('/classes/messages', 'GET');
     var res = new stubs.response();
 
@@ -34,9 +36,10 @@ describe('Node Server Request Listener Function', function() {
     var parsedBody = JSON.parse(res._data);
     expect(parsedBody).to.be.an('array');
     expect(res._ended).to.equal(true);
+    done();
   });
 
-  it('Should accept posts to /classes/messages', function() {
+  it('Should accept posts to /classes/messages', function(done) {
     var stubMsg = {
       username: 'Jono',
       text: 'Do my bidding!'
@@ -51,11 +54,12 @@ describe('Node Server Request Listener Function', function() {
 
     // Testing for a newline isn't a valid test
     // TODO: Replace with with a valid test
-    // expect(res._data).to.equal(JSON.stringify('\n'));
+    expect(res._data).to.equal(JSON.stringify(req._postdata));
     expect(res._ended).to.equal(true);
+    done();
   });
 
-  it('Should respond with messages that were previously posted', function() {
+  it('Should respond with messages that were previously posted', function(done) {
     var stubMsg = {
       username: 'Jono',
       text: 'Do my bidding!'
@@ -79,9 +83,10 @@ describe('Node Server Request Listener Function', function() {
     expect(messages[0].username).to.equal('Jono');
     expect(messages[0].text).to.equal('Do my bidding!');
     expect(res._ended).to.equal(true);
+    done();
   });
 
-  it('Should 404 when asked for a nonexistent file', function() {
+  it('Should 404 when asked for a nonexistent file', function(done) {
     var req = new stubs.request('/arglebargle', 'GET');
     var res = new stubs.response();
 
@@ -89,6 +94,7 @@ describe('Node Server Request Listener Function', function() {
 
     expect(res._responseCode).to.equal(404);
     expect(res._ended).to.equal(true);
+    done();
   });
 
 });
